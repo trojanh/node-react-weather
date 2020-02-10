@@ -5,10 +5,11 @@ import WeatherIcon from "react-icons-weather";
 import logos from "../assets/logos";
 
 const Content = styled.div`
-  margin: 20px;
+  margin: 20px 180px;
   flex: 1;
   @media (max-width: 786px) {
     margin: 5px;
+    max-width: 100%;
   }
 `;
 
@@ -17,13 +18,23 @@ const WeatherRow = styled.div`
   display: flex;
   flex-direction: ${({ column }) => (column ? "column" : "row")};
   justify-content: space-around;
-  @media (max-width: 786px) {
-    width: 100%;
-    margin: 2px;
-    flex-flow: wrap;
-    justify-content: center;
-  }
+  font-size: 16px;
+  border-top: solid 1px #00695c;
 `;
+
+const WeatherRow1 = styled.div`
+  display: flex;
+  max-width: 100%;
+  justify-content: space-around;
+`;
+
+const WeatherRow2 = styled.div`
+  margin: 8px;
+  display: flex;
+  flex: 1 0 0;
+  justify-content: space-between;
+`;
+
 const WeatherWrapper = styled.div`
   display: flex;
   flex: 4;
@@ -41,22 +52,25 @@ const RowHeader = styled.div`
 
 const RowContent = styled.div`
   align-self: center;
-  margin-left: 10px;
   text-transform: capitalize;
   text-align: end;
   ${({ icon }) =>
     icon &&
     `
-font-size: 50px;
-`}
+    font-size: 50px;
+  `}
   ${({ header }) =>
     header &&
     `
-font-size: 20px;
-font-weight: 400;
-width: 30%
-
-`}
+    font-size: 20px;
+    font-weight: 400;
+    width: 30%
+  `}
+  ${({ bold }) =>
+    bold &&
+    `
+    font-weight: 400;
+  `}
 `;
 
 const renderText = text => {
@@ -66,6 +80,48 @@ const renderText = text => {
         <WeatherRow>{text}</WeatherRow>
       </Content>
     </WeatherWrapper>
+  );
+};
+
+const renderColumn = data => {
+  return (
+    <WeatherRow2>
+      {Object.keys(data)
+        .slice(0, 3)
+        .map(value => {
+          return (
+            <WeatherRow2 key={value}>
+              <RowContent>{value}: </RowContent>
+              <RowContent>{data[value]}</RowContent>
+            </WeatherRow2>
+          );
+        })}
+    </WeatherRow2>
+  );
+};
+
+const renderForecasts = forecasts => {
+  return (
+    <WeatherRow1>
+      {forecasts.slice(0, 5).map(forecast => {
+        return (
+          <WeatherRow column key={forecast.date}>
+            <RowContent bold>{forecast.day}</RowContent>
+            <RowContent>
+              <WeatherIcon name="yahoo" iconId={forecast.code.toString()} />
+            </RowContent>
+            <WeatherRow2>
+              <div>H: </div>
+              <div>{forecast.high}</div>
+            </WeatherRow2>
+            <WeatherRow2>
+              <div>L: </div>
+              <div>{forecast.low}</div>
+            </WeatherRow2>
+          </WeatherRow>
+        );
+      })}
+    </WeatherRow1>
   );
 };
 
@@ -95,7 +151,7 @@ export default function Weather() {
           </RowHeader>
         </WeatherRow>
 
-        <WeatherRow>
+        <WeatherRow1>
           <RowContent>{observations.condition.temperature} &#8457;</RowContent>
           <RowContent icon>
             <WeatherIcon
@@ -104,61 +160,13 @@ export default function Weather() {
             />
           </RowContent>
           <RowContent>{observations.condition.text}</RowContent>
-        </WeatherRow>
+        </WeatherRow1>
 
-        <WeatherRow>
-          <WeatherRow column>
-            <WeatherRow>
-              <RowContent>Humidity: </RowContent>
-              <RowContent>
-                {weather.current_observation.atmosphere.humidity}
-              </RowContent>
-            </WeatherRow>
-            <WeatherRow>
-              <RowContent>Visibility: </RowContent>
-              <RowContent>
-                {weather.current_observation.atmosphere.visibility}
-              </RowContent>
-            </WeatherRow>
-            <WeatherRow>
-              <RowContent>Pressure: </RowContent>
-              <RowContent>
-                {weather.current_observation.atmosphere.pressure}
-              </RowContent>
-            </WeatherRow>
-          </WeatherRow>
-          <WeatherRow column>
-            <WeatherRow>
-              <RowContent>Chill: </RowContent>
-              <RowContent>{weather.current_observation.wind.chill}</RowContent>
-            </WeatherRow>
-            <WeatherRow>
-              <RowContent>Direction: </RowContent>
-              <RowContent>
-                {weather.current_observation.wind.direction}
-              </RowContent>
-            </WeatherRow>
-            <WeatherRow>
-              <RowContent>Speed: </RowContent>
-              <RowContent>{weather.current_observation.wind.speed}</RowContent>
-            </WeatherRow>
-          </WeatherRow>
-          <WeatherRow column>
-            <WeatherRow>
-              <RowContent>Sunrise: </RowContent>
-              <RowContent>
-                {weather.current_observation.astronomy.sunrise}
-              </RowContent>
-            </WeatherRow>
-            <WeatherRow>
-              <RowContent>Sunset: </RowContent>
-              <RowContent>
-                {weather.current_observation.astronomy.sunset}
-              </RowContent>
-            </WeatherRow>
-            <WeatherRow></WeatherRow>
-          </WeatherRow>
+        <WeatherRow column>
+          {renderColumn(weather.current_observation.atmosphere)}
+          {renderColumn(weather.current_observation.wind)}
         </WeatherRow>
+        <WeatherRow column>{renderForecasts(weather.forecasts)}</WeatherRow>
       </Content>
     </WeatherWrapper>
   );

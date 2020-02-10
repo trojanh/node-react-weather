@@ -66,6 +66,7 @@ export default function Cities() {
           type: "FETCH_WEATHER_SUCCESS",
           weather: { ...weather, cityName: name }
         });
+        window.scrollTo(0, 0);
       })
       .catch(error => {
         dispatch({ type: "FETCH_WEATHER_ERROR", error });
